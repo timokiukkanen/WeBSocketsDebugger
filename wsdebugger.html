@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebSocket Debugger</title>
+</head>
+<body>
+  <h2>WebSocket Debugger</h2>
+  <p>Check the browser console (F12) for WebSocket messages.</p>
+
+  <label for="wsUrl">WebSocket URL:</label>
+  <input type="text" id="wsUrl" value="ws://192.168.0.75:8001/api/v2/channels/samsung.remote.control?name=MYTEST" size="60" />
+  <button id="connectBtn">Connect</button>
+  <button id="disconnectBtn" disabled>Disconnect</button>
+
+  <script>
+    let ws;
+
+    document.getElementById('connectBtn').addEventListener('click', () => {
+      const url = document.getElementById('wsUrl').value;
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        console.log('Already connected');
+        return;
+      }
+
+      ws = new WebSocket(url);
+
+      ws.onopen = () => {
+        console.log('WebSocket connection opened:', url);
+        document.getElementById('connectBtn').disabled = true;
+        document.getElementById('disconnectBtn').disabled = false;
+      };
+
+      ws.onmessage = (event) => {
+        console.log('Received:', event.data);
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      ws.onclose = (event) => {
+        console.log(`WebSocket connection closed (code: ${event.code}, reason: ${event.reason})`);
+        document.getElementById('connectBtn').disabled = false;
+        document.getElementById('disconnectBtn').disabled = true;
+      };
+    });
+
+    document.getElementById('disconnectBtn').addEventListener('click', () => {
+      if (ws) {
+        ws.close();
+      }
+    });
+  </script>
+</body>
+</html>
